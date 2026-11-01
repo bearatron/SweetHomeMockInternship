@@ -504,6 +504,27 @@ public class FurnitureController implements Controller {
   }
 
   /**
+   * Returns <code>true</code> if the furniture property specified is visible
+   * @param furnitureProperty  the furniture property to check visibility
+   * @return
+   */
+  public boolean furniturePropertyVisible(HomePieceOfFurniture.SortableProperty furnitureProperty) {
+    return this.home.getFurnitureVisibleProperties().contains(furnitureProperty);
+  }
+
+  // TODO: remove this if column reordering not needed
+  public int furnitureVisiblePropertyIndex(HomePieceOfFurniture.SortableProperty furnitureProperty) {
+    if (!furniturePropertyVisible(furnitureProperty)) {
+      return -1;
+    }
+
+    List<SortableProperty> furnitureVisibleProperties =
+            new ArrayList<SortableProperty>(this.home.getFurnitureVisibleProperties());
+
+    return furnitureVisibleProperties.indexOf(furnitureProperty);
+  }
+
+  /**
    * Updates the furniture visible properties in home.  
    */
   public void setFurnitureVisibleProperties(List<HomePieceOfFurniture.SortableProperty> furnitureVisibleProperties) {

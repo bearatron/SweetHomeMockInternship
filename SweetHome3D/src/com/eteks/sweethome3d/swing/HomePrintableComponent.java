@@ -37,11 +37,7 @@ import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.security.AccessControlException;
 import java.text.MessageFormat;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.util.*;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -51,10 +47,7 @@ import com.eteks.sweethome3d.model.HomePieceOfFurniture;
 import com.eteks.sweethome3d.model.HomePrint;
 import com.eteks.sweethome3d.model.LengthUnit;
 import com.eteks.sweethome3d.model.Level;
-import com.eteks.sweethome3d.viewcontroller.ContentManager;
-import com.eteks.sweethome3d.viewcontroller.HomeController;
-import com.eteks.sweethome3d.viewcontroller.PlanView;
-import com.eteks.sweethome3d.viewcontroller.View;
+import com.eteks.sweethome3d.viewcontroller.*;
 
 /**
  * A printable component used to print or preview the furniture, the plan 
@@ -341,9 +334,16 @@ public class HomePrintableComponent extends JComponent implements Printable {
             clipBounds.width, (int)pageFormat.getImageableHeight());
       }
     }
-    
-    View furnitureView = this.controller.getFurnitureController().getView();
-    if (furnitureView != null 
+
+    FurnitureController furnitureController = this.controller.getFurnitureController();
+    boolean levelVisibleOriginally =
+            furnitureController.furniturePropertyVisible(HomePieceOfFurniture.SortableProperty.LEVEL);
+
+    if (!levelVisibleOriginally) {
+      furnitureController.toggleFurnitureVisibleProperty(HomePieceOfFurniture.SortableProperty.LEVEL);
+    }
+    View furnitureView = furnitureController.getView();
+    if (furnitureView != null
         && (homePrint == null || homePrint.isFurniturePrinted())) {
       FurnitureTable furnitureTable = null;
       final FurnitureTable.FurnitureFilter furnitureFilter;
@@ -375,7 +375,7 @@ public class HomePrintableComponent extends JComponent implements Printable {
         this.furniturePageCount++;
       }
     }
-    if (pageExists == NO_SUCH_PAGE 
+    if (pageExists == NO_SUCH_PAGE
         && planView != null 
         && (homePrint == null || homePrint.isPlanPrinted())) {
       // Try to print next plan view page
@@ -386,6 +386,10 @@ public class HomePrintableComponent extends JComponent implements Printable {
         this.planPageCount++;
       }
     }
+    if (!levelVisibleOriginally) {
+      furnitureController.toggleFurnitureVisibleProperty(HomePieceOfFurniture.SortableProperty.LEVEL);
+    }
+
     View view3D = this.controller.getHomeController3D().getView();
     if (pageExists == NO_SUCH_PAGE
         && view3D != null
