@@ -2008,7 +2008,8 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
    * that makes it fill <code>pageFormat</code> imageable size if this attribute is <code>null</code>.
    */
   public int print(Graphics g, PageFormat pageFormat, int pageIndex) {
-    List<Selectable> printedItems = getPaintedItems(); 
+    Level originallySelectedLevel = this.home.getSelectedLevel();
+    List<Selectable> printedItems = getPaintedItems();
     Rectangle2D printedItemBounds = getItemsBounds(g, printedItems);
     if (printedItemBounds != null) {
       double imageableX = pageFormat.getImageableX();
@@ -2023,8 +2024,16 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
       if (this.home.getPrint() == null || this.home.getPrint().getPlanScale() == null) {
         // Compute a scale that ensures the plan will fill the component if plan scale is null
         printScale = getPrintPreferredScale(g, pageFormat) * LengthUnit.centimeterToInch(72);
-        if (pageIndex > 0) {
+        int maxPageIndex = 0;
+        if (originallySelectedLevel != null) {
+          maxPageIndex = this.home.getLevels().size() - 1;
+        }
+        if (pageIndex > maxPageIndex) {
           return NO_SUCH_PAGE;
+        }
+        if (originallySelectedLevel != null) {
+          // temporarily set level to the one we want to print
+          this.home.setSelectedLevel(this.home.getLevels().get(pageIndex));
         }
         pagesPerRow = 1;
         pagesPerColumn = 1;
@@ -2067,8 +2076,11 @@ public class PlanComponent extends JComponent implements PlanView, Scrollable, P
         paintContent(g2D, printScale, PaintMode.PRINT);
       } catch (InterruptedIOException ex) {
         // Ignore exception because it may happen only in EXPORT paint mode 
-      }   
+      }
       g2D.dispose();
+
+      // restore level that was selected before printing
+      this.home.setSelectedLevel(originallySelectedLevel);
       return PAGE_EXISTS;
     } else {
       return NO_SUCH_PAGE;
