@@ -512,18 +512,6 @@ public class FurnitureController implements Controller {
     return this.home.getFurnitureVisibleProperties().contains(furnitureProperty);
   }
 
-  // TODO: remove this if column reordering not needed
-  public int furnitureVisiblePropertyIndex(HomePieceOfFurniture.SortableProperty furnitureProperty) {
-    if (!furniturePropertyVisible(furnitureProperty)) {
-      return -1;
-    }
-
-    List<SortableProperty> furnitureVisibleProperties =
-            new ArrayList<SortableProperty>(this.home.getFurnitureVisibleProperties());
-
-    return furnitureVisibleProperties.indexOf(furnitureProperty);
-  }
-
   /**
    * Updates the furniture visible properties in home.  
    */
